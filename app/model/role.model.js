@@ -1,7 +1,7 @@
 const mongoose = require('mongoose')
 
 const roleSchema = new mongoose.Schema({
-    name:{type:String,required:true,enum:["Student","Teacher"]},
+    name:{type:String,required:true,enum:["STUDENT", "TEACHER", "ADMIN"]},
     permissions:[String]
 })
 

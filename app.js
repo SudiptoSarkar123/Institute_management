@@ -18,6 +18,10 @@ app.use(express.json())
 app.use(morgan('dev'));
 app.use(morgan('combined',{ stream: accessLogStrem}));
 
+const authRouter = require('./app/router/auth.route')
+
+app.use('/api/auth',authRouter)
+
 
 
 
