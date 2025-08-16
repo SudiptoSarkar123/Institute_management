@@ -329,6 +329,69 @@ class instituteController {
             })
         }
     }
+
+    async editCourse(req,res){
+        try {
+            const courseId = req.params.id
+            const { title, description,durationWeeks, price } = req.body;
+
+            const updateData = {}
+            if(title){
+                updateData.title = title
+            }
+            if(description){
+                updateData.description = description
+            }
+            if(durationWeeks){
+                updateData.durationWeeks = durationWeeks
+            }
+            if(price){
+                updateData.price = price
+            }
+            const updateCourse = await Course.findByIdAndUpdate(courseId,
+                {
+                    $set:updateData
+                },
+                {
+                    new:true
+                }
+            )
+
+            if(!updateCourse){
+                return res.status(400).json({
+                    message: `Course not found`
+                })
+            }
+            return res.status(200).json({
+                message: `Course updated successfully`
+            })
+        } catch (error) {
+            console.log(error)
+            return res.status(400).json({
+                message: "Failed to update course"
+            })
+        }
+    }
+
+    async deleteCourse(req,res){
+        try {
+            const courseId = req.params.id
+            const deleteCourse = await Course.findByIdAndDelete(courseId)
+            if(!deleteCourse){
+                return res.status(400).json({
+                    message: `Course not found`
+                })
+            }
+            return res.status(200).json({
+                message: `Course deleted successfully`
+            })
+        } catch (error) {
+            console.log(error)
+            return res.status(400).json({
+                message: "Failed to delete course"
+            })
+        }
+    }
 }
 
 
