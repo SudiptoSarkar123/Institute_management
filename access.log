@@ -73,3 +73,5 @@
 ::1 - - [16/Aug/2025:18:26:51 +0000] "POST /api/auth/batch HTTP/1.1" 422 151 "-" "PostmanRuntime/7.45.0"
 ::1 - - [16/Aug/2025:18:29:21 +0000] "POST /api/auth/batch HTTP/1.1" 400 31 "-" "PostmanRuntime/7.45.0"
 ::1 - - [16/Aug/2025:18:29:41 +0000] "POST /api/auth/batch HTTP/1.1" 200 44 "-" "PostmanRuntime/7.45.0"
+::1 - - [16/Aug/2025:18:34:04 +0000] "POST /api/auth/batch HTTP/1.1" 200 269 "-" "PostmanRuntime/7.45.0"
+::1 - - [16/Aug/2025:18:34:10 +0000] "POST /api/auth/batch HTTP/1.1" 400 34 "-" "PostmanRuntime/7.45.0"
