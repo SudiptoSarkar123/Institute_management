@@ -15,6 +15,7 @@ const accessLogStrem = fs.createWriteStream(
 
 
 app.use(express.json())
+app.use('/uploads',express.static('uploads'));
 app.use(morgan('dev'));
 app.use(morgan('combined',{ stream: accessLogStrem}));
 

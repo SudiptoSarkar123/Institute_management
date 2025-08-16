@@ -15,8 +15,9 @@ const userSchema = new mongoose.Schema({
         required:true,
         unique:true
     },
+    profilePic:String,
     role:{type:mongoose.Schema.Types.ObjectId, ref:"Role",required:true},
-    contact:String,
+    contact:Number,
     dateOfBirh:Date,
     assignedCourses:[{type:mongoose.Schema.Types.ObjectId, ref:'Course'}],
 },{timestamps:true});
