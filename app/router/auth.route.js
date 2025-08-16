@@ -13,6 +13,9 @@ router.post('/login',instituteController.login);
 router.get('/profile',authCheck,instituteController.getProfile);
 router.put('/profile',upload.single('profileImage'),authCheck,instituteController.updateProfile)
 router.get('/users',authCheck,adminsOnly,instituteController.getAllUsers)
+router.post('/course',instituteController.addCourse)
+
+router.post('/batch',instituteController.addBatch)
 
 
 module.exports = router ; 

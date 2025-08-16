@@ -1,11 +1,13 @@
 const User = require('../model/users.model')
 const Role = require('../model/role.model')
 const Course = require('../model/course.model')
+const Batch = require('../model/batch.model')
 const { Validator } = require('node-input-validator')
 const jwt = require('jsonwebtoken')
 const bcrypt = require('bcryptjs')
 const path = require('path')
 const fs = require('fs')
+const { setDefaultHighWaterMark } = require('stream')
 
 class instituteController {
     async register(req, res) {
@@ -311,6 +313,14 @@ class instituteController {
 
         try {
             const { title, description,durationWeeks, price } = req.body;
+
+            const isExists = await Course.findOne({ title })
+            if (isExists) {
+                return res.status(400).json({
+                    message: "Course already exists"
+                })
+            }
+
             const newCourse = new Course({
                 title,
                 description,
@@ -320,7 +330,8 @@ class instituteController {
             const course = await newCourse.save()
 
             return res.status(200).json({
-                message: `New course created successfully`
+                message: `New course created successfully`,
+                data: course
             })
         } catch (error) {
             console.log(error)
@@ -393,7 +404,105 @@ class instituteController {
         }
     }
 
-    
+    async addBatch(req,res){
+
+        const v = new Validator(req.body, {
+            course: 'required|string',
+            name: 'required|string',
+            startDate: 'required|string',
+            endDate: 'required|string',
+            teacher: 'required|string'
+        })
+        const matched = await v.check();
+        if (!matched) {
+            console.log(v.errors)
+            return res.status(422).json(v.errors);
+        }
+
+        try {
+            const {course, name, startDate, endDate , teacher } = req.body;
+
+            // Validate ObjectId format
+            if (!course.match(/^[0-9a-fA-F]{24}$/)) {
+                return res.status(400).json({
+                    message: 'Invalid course ID format'
+                });
+            }
+
+            if (!teacher.match(/^[0-9a-fA-F]{24}$/)) {
+                return res.status(400).json({
+                    message: 'Invalid teacher ID format'
+                });
+            }
+
+            // Validate date format and convert to Date objects
+            const startDateObj = new Date(startDate);
+            const endDateObj = new Date(endDate);
+            
+            if (isNaN(startDateObj.getTime())) {
+                return res.status(400).json({
+                    message: 'Invalid start date format'
+                });
+            }
+            
+            if (isNaN(endDateObj.getTime())) {
+                return res.status(400).json({
+                    message: 'Invalid end date format'
+                });
+            }
+
+            // Check if end date is after start date
+            if (endDateObj <= startDateObj) {
+                return res.status(400).json({
+                    message: 'End date must be after start date'
+                });
+            }
+
+            const courseExist = await Course.findById(course)
+            if(!courseExist){
+                return res.status(400).json({
+                    message: `Course not found`
+                })
+            }
+
+            const teacherExist = await User.findById(teacher).populate('role')
+            if(!teacherExist || teacherExist.role.name !== 'TEACHER'){
+                return res.status(400).json({
+                    message: `Teacher not found`
+                })
+            }
+
+
+            const isBatchExist = await Batch.findOne({name})
+            if(isBatchExist){
+                return res.status(400).json({
+                    message: `Batch already exists`
+                })
+            }
+        
+            
+
+            const newBatch = new Batch({
+                course,
+                name,
+                startDate: startDateObj,
+                endDate: endDateObj,
+                teacher
+            })
+            const batch = await newBatch.save()
+            return res.status(200).json({
+                message: `New batch created successfully`,
+                data: batch
+            })
+        } catch (error) {
+            console.log(error)
+            return res.status(400).json({
+                message: "Failed to add batch"
+            })
+        }
+    }
+
+
 }
 
 
