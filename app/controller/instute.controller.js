@@ -1,5 +1,6 @@
 const User = require('../model/users.model')
 const Role = require('../model/role.model')
+const Course = require('../model/course.model')
 const { Validator } = require('node-input-validator')
 const jwt = require('jsonwebtoken')
 const bcrypt = require('bcryptjs')
@@ -218,7 +219,7 @@ class instituteController {
 
             let query = {}
             let roleFilter = null
-            
+
             // Filter by role if provided - first get the role ID
             if (role && ['TEACHER', 'STUDENT'].includes(role.toUpperCase())) {
                 const roleDoc = await Role.findOne({ name: role.toUpperCase() });
@@ -226,7 +227,7 @@ class instituteController {
                     roleFilter = roleDoc._id;
                 }
             }
-            
+
             // Search functionality for name and email
             if (search) {
                 query.$or = [
@@ -242,10 +243,10 @@ class instituteController {
 
             // Pagination
             const skip = (parseInt(page) - 1) * parseInt(limit)
-            
+
             // Get total count for pagination info
             const totalUsers = await User.countDocuments(query)
-            
+
             // Get users with role lookup and pagination
             const users = await User.aggregate([
                 { $match: query },
@@ -280,7 +281,7 @@ class instituteController {
                 { $limit: parseInt(limit) }
             ])
 
-            return res.status(200).json({ 
+            return res.status(200).json({
                 users,
                 pagination: {
                     currentPage: parseInt(page),
@@ -293,6 +294,39 @@ class instituteController {
         } catch (error) {
             console.log(error)
             return res.status(500).json({ error: error.message });
+        }
+    }
+
+    async addCourse(req, res) {
+        const v = new Validator(req.body, {
+            title: 'required|string',
+            description: 'required|string',
+            durationWeeks: 'required|numeric',
+            price: 'required|numeric'
+        });
+        const matched = await v.check();
+        if (!matched) {
+            return res.status(422).json(v.errors);
+        }
+
+        try {
+            const { title, description,durationWeeks, price } = req.body;
+            const newCourse = new Course({
+                title,
+                description,
+                durationWeeks,
+                price
+            })
+            const course = await newCourse.save()
+
+            return res.status(200).json({
+                message: `New course created successfully`
+            })
+        } catch (error) {
+            console.log(error)
+            return res.status(400).json({
+                message: "Failed to add course"
+            })
         }
     }
 }
